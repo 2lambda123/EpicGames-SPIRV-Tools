@@ -55,7 +55,7 @@ def convert_min_required_version(version):
     """Converts the minimal required SPIR-V version encoded in the grammar to
     the symbol in SPIRV-Tools.
 
-    :param version: 
+    :param version:
 
     """
     if version is None:
@@ -69,7 +69,7 @@ def convert_max_required_version(version):
     """Converts the maximum required SPIR-V version encoded in the grammar to
     the symbol in SPIRV-Tools.
 
-    :param version: 
+    :param version:
 
     """
     if version is None:
@@ -96,7 +96,7 @@ def get_capability_array_name(caps):
     """Returns the name of the array containing all the given capabilities.
 
     :param - caps: a sequence of capability names
-    :param caps: 
+    :param caps:
 
     """
     if not caps:
@@ -138,7 +138,7 @@ def get_extension_array_name(extensions):
     """Returns the name of the array containing all the given extensions.
 
     :param - extensions: a sequence of extension names
-    :param extensions: 
+    :param extensions:
 
     """
     if not extensions:
@@ -151,7 +151,7 @@ def generate_extension_arrays(extensions):
     """
 
     :param caps: a sequence of sequence of extension names
-    :param extensions: 
+    :param extensions:
 
     """
     extensions = sorted(set([tuple(e) for e in extensions if e]))
@@ -265,7 +265,7 @@ class InstInitializer(object):
     def fix_syntax(self):
         """Fix an instruction's syntax, adjusting for differences between the
         officially released grammar and how SPIRV-Tools uses the grammar.
-        
+
         Fixes:
             - ExtInst should not end with SPV_OPERAND_VARIABLE_ID.
             https://github.com/KhronosGroup/SPIRV-Tools/issues/233
@@ -358,7 +358,7 @@ def generate_instruction(inst, is_ext_inst):
 
     :param inst: a dict containing information about a SPIR
     :param is_ext_inst: a bool indicating whether
-    :param instruction: 
+    :param instruction:
     :returns: a string containing the C initializer for spv_opcode_desc_t or
       spv_ext_inst_desc_t
 
@@ -387,7 +387,7 @@ def generate_instruction_table(inst_table):
 
     :param inst_table: a list containing all SPIR
     :returns: opcode, and prefixed by capability arrays.
-    
+
     Note:
       - the built-in sorted() function is guaranteed to be stable.
         https://docs.python.org/3/library/functions.html#sorted
@@ -418,7 +418,7 @@ def generate_extended_instruction_table(json_grammar, set_name, operand_kind_pre
     :param set_name: the name of the extended instruction set
     :param operand_kind_prefix: the prefix (Default value = "")
     :param of: operand kind names
-    :param json_grammar: 
+    :param json_grammar:
     :returns: sorted by opcode, and prefixed by capability arrays.
 
     """
@@ -522,12 +522,12 @@ def generate_enum_operand_kind_entry(entry, extension_map):
 def generate_enum_operand_kind(enum, synthetic_exts_list):
     """Returns the C definition for the given operand kind.
     It's a static const named array of spv_operand_desc_t.
-    
+
     Also appends to |synthetic_exts_list| a list of extension lists
     used.
 
-    :param enum: 
-    :param synthetic_exts_list: 
+    :param enum:
+    :param synthetic_exts_list:
 
     """
     kind = enum.get("kind")
@@ -541,7 +541,7 @@ def generate_enum_operand_kind(enum, synthetic_exts_list):
         def functor(k):
             """
 
-            :param k: 
+            :param k:
 
             """
             return k["value"]
@@ -551,7 +551,7 @@ def generate_enum_operand_kind(enum, synthetic_exts_list):
         def functor(k):
             """
 
-            :param k: 
+            :param k:
 
             """
             return int(k["value"], 16)
@@ -590,7 +590,7 @@ def generate_enum_operand_kind(enum, synthetic_exts_list):
 def generate_operand_kind_table(enums):
     """Returns the info table containing all SPIR-V operand kinds.
 
-    :param enums: 
+    :param enums:
 
     """
     # We only need to output info tables for those operand kinds that are enums.
@@ -650,8 +650,8 @@ def generate_operand_kind_table(enums):
 def get_extension_list(instructions, operand_kinds):
     """Returns extensions as an alphabetically sorted list of strings.
 
-    :param instructions: 
-    :param operand_kinds: 
+    :param instructions:
+    :param operand_kinds:
 
     """
 
@@ -692,7 +692,7 @@ def get_capabilities(operand_kinds):
     """Returns capabilities as a list of JSON objects, in order of
     appearance.
 
-    :param operand_kinds: 
+    :param operand_kinds:
 
     """
     enumerants = sum(
@@ -709,7 +709,7 @@ def get_capabilities(operand_kinds):
 def generate_extension_enum(extensions):
     """Returns enumeration containing extensions declared in the grammar.
 
-    :param extensions: 
+    :param extensions:
 
     """
     return ",\n".join(["k" + extension for extension in extensions])
@@ -718,7 +718,7 @@ def generate_extension_enum(extensions):
 def generate_extension_to_string_mapping(extensions):
     """Returns mapping function from extensions to corresponding strings.
 
-    :param extensions: 
+    :param extensions:
 
     """
     function = "const char* ExtensionToString(Extension extension) {\n"
@@ -734,7 +734,7 @@ def generate_extension_to_string_mapping(extensions):
 def generate_string_to_extension_mapping(extensions):
     """Returns mapping function from strings to corresponding extensions.
 
-    :param extensions: 
+    :param extensions:
 
     """
 
@@ -763,10 +763,10 @@ def generate_string_to_extension_mapping(extensions):
 
 def generate_capability_to_string_mapping(operand_kinds):
     """Returns mapping function from capabilities to corresponding strings.
-    
+
     We take care to avoid emitting duplicate values.
 
-    :param operand_kinds: 
+    :param operand_kinds:
 
     """
     cap_str = "SpvCapability"
@@ -803,8 +803,8 @@ def generate_capability_to_string_mapping(operand_kinds):
 def generate_all_string_enum_mappings(extensions, operand_kinds):
     """Returns all string-to-enum / enum-to-string mapping tables.
 
-    :param extensions: 
-    :param operand_kinds: 
+    :param extensions:
+    :param operand_kinds:
 
     """
     tables = []
@@ -818,7 +818,7 @@ def precondition_operand_kinds(operand_kinds):
     """For operand kinds that have the same number, make sure they all have the
     same extension list.
 
-    :param operand_kinds: 
+    :param operand_kinds:
 
     """
 
@@ -853,8 +853,8 @@ def prefix_operand_kind_names(prefix, json_dict):
     with the given prefix.  Also modifies their uses in the instructions
     to match.
 
-    :param prefix: 
-    :param json_dict: 
+    :param prefix:
+    :param json_dict:
 
     """
 
