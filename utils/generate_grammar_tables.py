@@ -89,7 +89,8 @@ def compose_capability_list(caps):
     if OUTPUT_LANGUAGE == "c++":
         base_string = "spv::Capability::"
 
-    return "{" + ", ".join([(base_string + "{}").format(c) for c in caps]) + "}"
+    return "{" + ", ".join([(base_string + "{}").format(c)
+                            for c in caps]) + "}"
 
 
 def get_capability_array_name(caps):
@@ -116,9 +117,8 @@ def generate_capability_arrays(caps):
     if OUTPUT_LANGUAGE == "c++":
         cap_str = "spv::Capability"
     arrays = [
-        "static const "
-        + cap_str
-        + " {}[] = {};".format(get_capability_array_name(c), compose_capability_list(c))
+        "static const " + cap_str + " {}[] = {};".format(
+            get_capability_array_name(c), compose_capability_list(c))
         for c in caps
     ]
     return "\n".join(arrays)
@@ -131,7 +131,8 @@ def compose_extension_list(exts):
     :returns: a string containing the braced list of extensions named by exts.
 
     """
-    return "{" + ", ".join(["spvtools::Extension::k{}".format(e) for e in exts]) + "}"
+    return "{" + ", ".join(
+        ["spvtools::Extension::k{}".format(e) for e in exts]) + "}"
 
 
 def get_extension_array_name(extensions):
@@ -157,8 +158,7 @@ def generate_extension_arrays(extensions):
     extensions = sorted(set([tuple(e) for e in extensions if e]))
     arrays = [
         "static const spvtools::Extension {}[] = {};".format(
-            get_extension_array_name(e), compose_extension_list(e)
-        )
+            get_extension_array_name(e), compose_extension_list(e))
         for e in extensions
     ]
     return "\n".join(arrays)
@@ -222,8 +222,7 @@ def convert_operand_kind(operand_tuple):
         kind = "Variable{}".format(kind)
 
     return "SPV_OPERAND_TYPE_{}".format(
-        re.sub(r"([a-z])([A-Z])", r"\1_\2", kind).upper()
-    )
+        re.sub(r"([a-z])([A-Z])", r"\1_\2", kind).upper())
 
 
 class InstInitializer(object):
@@ -272,10 +271,8 @@ class InstInitializer(object):
 
 
         """
-        if (
-            self.opname == "ExtInst"
-            and self.operands[-1] == "SPV_OPERAND_TYPE_VARIABLE_ID"
-        ):
+        if (self.opname == "ExtInst"
+                and self.operands[-1] == "SPV_OPERAND_TYPE_VARIABLE_ID"):
             self.operands.pop()
 
     def __str__(self):
@@ -378,8 +375,8 @@ def generate_instruction(inst, is_ext_inst):
         return str(ExtInstInitializer(opname, opcode, caps, operands))
     else:
         return str(
-            InstInitializer(opname, caps, exts, operands, min_version, max_version)
-        )
+            InstInitializer(opname, caps, exts, operands, min_version,
+                            max_version))
 
 
 def generate_instruction_table(inst_table):
@@ -396,11 +393,9 @@ def generate_instruction_table(inst_table):
     inst_table = sorted(inst_table, key=lambda k: (k["opcode"], k["opname"]))
 
     caps_arrays = generate_capability_arrays(
-        [inst.get("capabilities", []) for inst in inst_table]
-    )
+        [inst.get("capabilities", []) for inst in inst_table])
     exts_arrays = generate_extension_arrays(
-        [inst.get("extensions", []) for inst in inst_table]
-    )
+        [inst.get("extensions", []) for inst in inst_table])
 
     insts = [generate_instruction(inst, False) for inst in inst_table]
     insts = [
@@ -411,7 +406,9 @@ def generate_instruction_table(inst_table):
     return "{}\n\n{}\n\n{}".format(caps_arrays, exts_arrays, "\n".join(insts))
 
 
-def generate_extended_instruction_table(json_grammar, set_name, operand_kind_prefix=""):
+def generate_extended_instruction_table(json_grammar,
+                                        set_name,
+                                        operand_kind_prefix=""):
     """
 
     :param inst_table: a list containing all SPIR
@@ -443,7 +440,8 @@ def generate_extended_instruction_table(json_grammar, set_name, operand_kind_pre
 class EnumerantInitializer(object):
     """Prints an enumerant as the initializer for spv_operand_desc_t."""
 
-    def __init__(self, enumerant, value, caps, exts, parameters, version, lastVersion):
+    def __init__(self, enumerant, value, caps, exts, parameters, version,
+                 lastVersion):
         """Initialization.
 
         Arguments:
@@ -515,8 +513,8 @@ def generate_enum_operand_kind_entry(entry, extension_map):
     assert value is not None
 
     return str(
-        EnumerantInitializer(enumerant, value, caps, exts, params, version, max_version)
-    )
+        EnumerantInitializer(enumerant, value, caps, exts, params, version,
+                             max_version))
 
 
 def generate_enum_operand_kind(enum, synthetic_exts_list):
@@ -581,8 +579,11 @@ def generate_enum_operand_kind(enum, synthetic_exts_list):
         for e in entries
     ]
 
-    template = ["static const spv_operand_desc_t {name}[] = {{", "{entries}", "}};"]
-    entries = "\n".join(template).format(name=name, entries=",\n".join(entries))
+    template = [
+        "static const spv_operand_desc_t {name}[] = {{", "{entries}", "}};"
+    ]
+    entries = "\n".join(template).format(name=name,
+                                         entries=",\n".join(entries))
 
     return kind, name, entries
 
@@ -597,15 +598,13 @@ def generate_operand_kind_table(enums):
     enums = [e for e in enums if e.get("category") in ["ValueEnum", "BitEnum"]]
 
     caps = [
-        entry.get("capabilities", [])
-        for enum in enums
+        entry.get("capabilities", []) for enum in enums
         for entry in enum.get("enumerants", [])
     ]
     caps_arrays = generate_capability_arrays(caps)
 
     exts = [
-        entry.get("extensions", [])
-        for enum in enums
+        entry.get("extensions", []) for enum in enums
         for entry in enum.get("enumerants", [])
     ]
     enums = [generate_enum_operand_kind(e, exts) for e in enums]
@@ -626,25 +625,28 @@ def generate_operand_kind_table(enums):
 
     enum_kinds, enum_names, enum_entries = zip(*enums)
     # Mark the last few as optional ones.
-    enum_quantifiers = [""] * (len(enums) - len(optional_enums)) + ["?"] * len(
-        optional_enums
-    )
+    enum_quantifiers = [""] * (
+        len(enums) - len(optional_enums)) + ["?"] * len(optional_enums)
     # And we don't want redefinition of them.
-    enum_entries = enum_entries[: -len(optional_enums)]
-    enum_kinds = [convert_operand_kind(e) for e in zip(enum_kinds, enum_quantifiers)]
+    enum_entries = enum_entries[:-len(optional_enums)]
+    enum_kinds = [
+        convert_operand_kind(e) for e in zip(enum_kinds, enum_quantifiers)
+    ]
     table_entries = zip(enum_kinds, enum_names, enum_names)
-    table_entries = ["  {{{}, ARRAY_SIZE({}), {}}}".format(*e) for e in table_entries]
+    table_entries = [
+        "  {{{}, ARRAY_SIZE({}), {}}}".format(*e) for e in table_entries
+    ]
 
     template = [
         "static const spv_operand_desc_group_t {p}_OperandInfoTable[] = {{",
         "{enums}",
         "}};",
     ]
-    table = "\n".join(template).format(
-        p=PYGEN_VARIABLE_PREFIX, enums=",\n".join(table_entries)
-    )
+    table = "\n".join(template).format(p=PYGEN_VARIABLE_PREFIX,
+                                       enums=",\n".join(table_entries))
 
-    return "\n\n".join((caps_arrays,) + (exts_arrays,) + enum_entries + (table,))
+    return "\n\n".join((caps_arrays, ) + (exts_arrays, ) + enum_entries +
+                       (table, ))
 
 
 def get_extension_list(instructions, operand_kinds):
@@ -657,7 +659,8 @@ def get_extension_list(instructions, operand_kinds):
 
     things_with_an_extensions_field = [item for item in instructions]
 
-    enumerants = sum([item.get("enumerants", []) for item in operand_kinds], [])
+    enumerants = sum([item.get("enumerants", []) for item in operand_kinds],
+                     [])
 
     things_with_an_extensions_field.extend(enumerants)
 
@@ -674,10 +677,10 @@ def get_extension_list(instructions, operand_kinds):
         # If it's already listed in a grammar, then don't put it in the
         # special exceptions list.
         assert item not in extensions, (
-            "Extension %s is already in a grammar file" % item
-        )
+            "Extension %s is already in a grammar file" % item)
 
-    extensions.extend(EXTENSIONS_FROM_SPIRV_REGISTRY_AND_NOT_FROM_GRAMMARS.split())
+    extensions.extend(
+        EXTENSIONS_FROM_SPIRV_REGISTRY_AND_NOT_FROM_GRAMMARS.split())
 
     # Validator would ignore type declaration unique check. Should only be used
     # for legacy autogenerated test files containing multiple instances of the
@@ -698,8 +701,7 @@ def get_capabilities(operand_kinds):
     enumerants = sum(
         [
             item.get("enumerants", [])
-            for item in operand_kinds
-            if item.get("kind") in ["Capability"]
+            for item in operand_kinds if item.get("kind") in ["Capability"]
         ],
         [],
     )
@@ -725,8 +727,7 @@ def generate_extension_to_string_mapping(extensions):
     function += "  switch (extension) {\n"
     template = "    case Extension::k{extension}:\n" '      return "{extension}";\n'
     function += "".join(
-        [template.format(extension=extension) for extension in extensions]
-    )
+        [template.format(extension=extension) for extension in extensions])
     function += '  }\n\n  return "";\n}'
     return function
 
@@ -778,24 +779,18 @@ def generate_capability_to_string_mapping(operand_kinds):
 
     function = "const char* CapabilityToString(" + cap_str + " capability) {\n"
     function += "  switch (capability) {\n"
-    template = (
-        "    case " + cap_str + cap_join + "{capability}:\n"
-        '      return "{capability}";\n'
-    )
+    template = ("    case " + cap_str + cap_join + "{capability}:\n"
+                '      return "{capability}";\n')
     emitted = set()  # The values of capabilities we already have emitted
     for capability in get_capabilities(operand_kinds):
         value = capability.get("value")
         if value not in emitted:
             emitted.add(value)
             function += template.format(capability=capability.get("enumerant"))
-    function += (
-        "    case " + cap_str + cap_join + "Max:\n"
-        '      assert(0 && "Attempting to convert '
-        + cap_str
-        + cap_join
-        + 'Max to string");\n'
-        '      return "";\n'
-    )
+    function += ("    case " + cap_str + cap_join + "Max:\n"
+                 '      assert(0 && "Attempting to convert ' + cap_str +
+                 cap_join + 'Max to string");\n'
+                 '      return "";\n')
     function += '  }\n\n  return "";\n}'
     return function
 
@@ -883,7 +878,8 @@ def main():
         metavar="<path>",
         type=str,
         required=False,
-        help="input JSON grammar file for core SPIR-V " "instructions",
+        help="input JSON grammar file for core SPIR-V "
+        "instructions",
     )
     parser.add_argument(
         "--extinst-debuginfo-grammar",
@@ -891,7 +887,8 @@ def main():
         type=str,
         required=False,
         default=None,
-        help="input JSON grammar file for DebugInfo extended " "instruction set",
+        help="input JSON grammar file for DebugInfo extended "
+        "instruction set",
     )
     parser.add_argument(
         "--extinst-cldebuginfo100-grammar",
@@ -908,7 +905,8 @@ def main():
         type=str,
         required=False,
         default=None,
-        help="input JSON grammar file for GLSL extended " "instruction set",
+        help="input JSON grammar file for GLSL extended "
+        "instruction set",
     )
     parser.add_argument(
         "--extinst-opencl-grammar",
@@ -916,7 +914,8 @@ def main():
         type=str,
         required=False,
         default=None,
-        help="input JSON grammar file for OpenCL extended " "instruction set",
+        help="input JSON grammar file for OpenCL extended "
+        "instruction set",
     )
     parser.add_argument(
         "--output-language",
@@ -981,7 +980,8 @@ def main():
         type=str,
         required=False,
         default=None,
-        help="input JSON grammar file for vendor extended " "instruction set",
+        help="input JSON grammar file for vendor extended "
+        "instruction set",
     ),
     parser.add_argument(
         "--vendor-insts-output",
@@ -1010,50 +1010,38 @@ def main():
         args.vendor_operand_kind_prefix = ""
 
     if (args.core_insts_output is None) != (args.operand_kinds_output is None):
-        print(
-            "error: --core-insts-output and --operand-kinds-output "
-            "should be specified together."
-        )
+        print("error: --core-insts-output and --operand-kinds-output "
+              "should be specified together.")
         exit(1)
     if args.operand_kinds_output and not (
-        args.spirv_core_grammar
-        and args.extinst_debuginfo_grammar
-        and args.extinst_cldebuginfo100_grammar
-    ):
-        print(
-            "error: --operand-kinds-output requires --spirv-core-grammar "
-            "and --extinst-debuginfo-grammar "
-            "and --extinst-cldebuginfo100-grammar"
-        )
+            args.spirv_core_grammar and args.extinst_debuginfo_grammar
+            and args.extinst_cldebuginfo100_grammar):
+        print("error: --operand-kinds-output requires --spirv-core-grammar "
+              "and --extinst-debuginfo-grammar "
+              "and --extinst-cldebuginfo100-grammar")
         exit(1)
     if (args.glsl_insts_output is None) != (args.extinst_glsl_grammar is None):
-        print(
-            "error: --glsl-insts-output and --extinst-glsl-grammar "
-            "should be specified together."
-        )
+        print("error: --glsl-insts-output and --extinst-glsl-grammar "
+              "should be specified together.")
         exit(1)
-    if (args.opencl_insts_output is None) != (args.extinst_opencl_grammar is None):
-        print(
-            "error: --opencl-insts-output and --extinst-opencl-grammar "
-            "should be specified together."
-        )
+    if (args.opencl_insts_output is None) != (args.extinst_opencl_grammar
+                                              is None):
+        print("error: --opencl-insts-output and --extinst-opencl-grammar "
+              "should be specified together.")
         exit(1)
-    if (args.vendor_insts_output is None) != (args.extinst_vendor_grammar is None):
-        print(
-            "error: --vendor-insts-output and "
-            "--extinst-vendor-grammar should be specified together."
-        )
+    if (args.vendor_insts_output is None) != (args.extinst_vendor_grammar
+                                              is None):
+        print("error: --vendor-insts-output and "
+              "--extinst-vendor-grammar should be specified together.")
         exit(1)
-    if all(
-        [
+    if all([
             args.core_insts_output is None,
             args.glsl_insts_output is None,
             args.opencl_insts_output is None,
             args.vendor_insts_output is None,
             args.extension_enum_output is None,
             args.enum_string_mapping_output is None,
-        ]
-    ):
+    ]):
         print("error: at least one output should be specified.")
         exit(1)
 
@@ -1062,11 +1050,12 @@ def main():
             core_grammar = json.loads(json_file.read())
             with open(args.extinst_debuginfo_grammar) as debuginfo_json_file:
                 debuginfo_grammar = json.loads(debuginfo_json_file.read())
-                with open(
-                    args.extinst_cldebuginfo100_grammar
-                ) as cldebuginfo100_json_file:
-                    cldebuginfo100_grammar = json.loads(cldebuginfo100_json_file.read())
-                    prefix_operand_kind_names("CLDEBUG100_", cldebuginfo100_grammar)
+                with open(args.extinst_cldebuginfo100_grammar
+                          ) as cldebuginfo100_json_file:
+                    cldebuginfo100_grammar = json.loads(
+                        cldebuginfo100_json_file.read())
+                    prefix_operand_kind_names("CLDEBUG100_",
+                                              cldebuginfo100_grammar)
                     instructions = []
                     instructions.extend(core_grammar["instructions"])
                     instructions.extend(debuginfo_grammar["instructions"])
@@ -1074,14 +1063,17 @@ def main():
                     operand_kinds = []
                     operand_kinds.extend(core_grammar["operand_kinds"])
                     operand_kinds.extend(debuginfo_grammar["operand_kinds"])
-                    operand_kinds.extend(cldebuginfo100_grammar["operand_kinds"])
-                    extensions = get_extension_list(instructions, operand_kinds)
+                    operand_kinds.extend(
+                        cldebuginfo100_grammar["operand_kinds"])
+                    extensions = get_extension_list(instructions,
+                                                    operand_kinds)
                     operand_kinds = precondition_operand_kinds(operand_kinds)
         if args.core_insts_output is not None:
             make_path_to_file(args.core_insts_output)
             make_path_to_file(args.operand_kinds_output)
             with open(args.core_insts_output, "w") as f:
-                f.write(generate_instruction_table(core_grammar["instructions"]))
+                f.write(
+                    generate_instruction_table(core_grammar["instructions"]))
             with open(args.operand_kinds_output, "w") as f:
                 f.write(generate_operand_kind_table(operand_kinds))
         if args.extension_enum_output is not None:
@@ -1091,7 +1083,9 @@ def main():
         if args.enum_string_mapping_output is not None:
             make_path_to_file(args.enum_string_mapping_output)
             with open(args.enum_string_mapping_output, "w") as f:
-                f.write(generate_all_string_enum_mappings(extensions, operand_kinds))
+                f.write(
+                    generate_all_string_enum_mappings(extensions,
+                                                      operand_kinds))
 
     if args.extinst_glsl_grammar is not None:
         with open(args.extinst_glsl_grammar) as json_file:
@@ -1113,13 +1107,11 @@ def main():
             make_path_to_file(args.vendor_insts_output)
             name = args.extinst_vendor_grammar
             start = name.find("extinst.") + len("extinst.")
-            name = name[start : -len(".grammar.json")].replace("-", "_")
+            name = name[start:-len(".grammar.json")].replace("-", "_")
             with open(args.vendor_insts_output, "w") as f:
                 f.write(
                     generate_extended_instruction_table(
-                        grammar, name, args.vendor_operand_kind_prefix
-                    )
-                )
+                        grammar, name, args.vendor_operand_kind_prefix))
 
 
 if __name__ == "__main__":
