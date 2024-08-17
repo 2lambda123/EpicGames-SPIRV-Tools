@@ -40,8 +40,8 @@ def make_path_to_file(f):
     """Makes all ancestor directories to the given file, if they don't yet
     exist.
 
-    Arguments:
-        f: The file whose ancestor directories are to be created.
+    :param f: The file whose ancestor directories are to be created
+
     """
     dir = os.path.dirname(os.path.abspath(f))
     try:
@@ -55,7 +55,11 @@ def make_path_to_file(f):
 
 def convert_min_required_version(version):
     """Converts the minimal required SPIR-V version encoded in the grammar to
-    the symbol in SPIRV-Tools."""
+    the symbol in SPIRV-Tools.
+
+    :param version: 
+
+    """
     if version is None:
         return "SPV_SPIRV_VERSION_WORD(1, 0)"
     if version == "None":
@@ -65,7 +69,11 @@ def convert_min_required_version(version):
 
 def convert_max_required_version(version):
     """Converts the maximum required SPIR-V version encoded in the grammar to
-    the symbol in SPIRV-Tools."""
+    the symbol in SPIRV-Tools.
+
+    :param version: 
+
+    """
     if version is None:
         return "0xffffffffu"
     return "SPV_SPIRV_VERSION_WORD({})".format(version.replace(".", ","))
@@ -74,11 +82,9 @@ def convert_max_required_version(version):
 def compose_capability_list(caps):
     """Returns a string containing a braced list of capabilities as enums.
 
-    Arguments:
-      - caps: a sequence of capability names
+    :param caps: a sequence of capability names
+    :returns: a string containing the braced list of SpvCapability* or spv::Capability:: enums named by caps.
 
-    Returns:
-      a string containing the braced list of SpvCapability* or spv::Capability:: enums named by caps.
     """
     base_string = "SpvCapability"
     global OUTPUT_LANGUAGE
@@ -91,8 +97,9 @@ def compose_capability_list(caps):
 def get_capability_array_name(caps):
     """Returns the name of the array containing all the given capabilities.
 
-    Args:
-      - caps: a sequence of capability names
+    :param - caps: a sequence of capability names
+    :param caps: 
+
     """
     if not caps:
         return "nullptr"
@@ -100,10 +107,10 @@ def get_capability_array_name(caps):
 
 
 def generate_capability_arrays(caps):
-    """Returns the arrays of capabilities.
+    """
 
-    Arguments:
-      - caps: a sequence of sequence of capability names
+    :param caps: a sequence of sequence of capability names
+
     """
     caps = sorted(set([tuple(c) for c in caps if c]))
     cap_str = "SpvCapability"
@@ -122,11 +129,9 @@ def generate_capability_arrays(caps):
 def compose_extension_list(exts):
     """Returns a string containing a braced list of extensions as enums.
 
-    Arguments:
-      - exts: a sequence of extension names
+    :param exts: a sequence of extension names
+    :returns: a string containing the braced list of extensions named by exts.
 
-    Returns:
-      a string containing the braced list of extensions named by exts.
     """
     return "{" + ", ".join(["spvtools::Extension::k{}".format(e) for e in exts]) + "}"
 
@@ -134,8 +139,9 @@ def compose_extension_list(exts):
 def get_extension_array_name(extensions):
     """Returns the name of the array containing all the given extensions.
 
-    Args:
-      - extensions: a sequence of extension names
+    :param - extensions: a sequence of extension names
+    :param extensions: 
+
     """
     if not extensions:
         return "nullptr"
@@ -144,10 +150,11 @@ def get_extension_array_name(extensions):
 
 
 def generate_extension_arrays(extensions):
-    """Returns the arrays of extensions.
+    """
 
-    Arguments:
-      - caps: a sequence of sequence of extension names
+    :param caps: a sequence of sequence of extension names
+    :param extensions: 
+
     """
     extensions = sorted(set([tuple(e) for e in extensions if e]))
     arrays = [
@@ -163,13 +170,11 @@ def convert_operand_kind(operand_tuple):
     """Returns the corresponding operand type used in spirv-tools for the given
     operand kind and quantifier used in the JSON grammar.
 
-    Arguments:
-      - operand_tuple: a tuple of two elements:
-          - operand kind: used in the JSON grammar
-          - quantifier: '', '?', or '*'
+    :param operand_tuple: a tuple of two elements
+    :param operand: kind
+    :param quantifier: or
+    :returns: a string of the enumerant name in spv_operand_type_t
 
-    Returns:
-      a string of the enumerant name in spv_operand_type_t
     """
     kind, quantifier = operand_tuple
     # The following cases are where we differ between the JSON grammar and
@@ -225,7 +230,10 @@ def convert_operand_kind(operand_tuple):
 
 class InstInitializer(object):
     """Instances holds a SPIR-V instruction suitable for printing as the
-    initializer for spv_opcode_desc_t."""
+    initializer for spv_opcode_desc_t.
+
+
+    """
 
     def __init__(self, opname, caps, exts, operands, version, lastVersion):
         """Initialization.
@@ -259,10 +267,12 @@ class InstInitializer(object):
     def fix_syntax(self):
         """Fix an instruction's syntax, adjusting for differences between the
         officially released grammar and how SPIRV-Tools uses the grammar.
-
+        
         Fixes:
             - ExtInst should not end with SPV_OPERAND_VARIABLE_ID.
             https://github.com/KhronosGroup/SPIRV-Tools/issues/233
+
+
         """
         if (
             self.opname == "ExtInst"
@@ -307,7 +317,10 @@ class InstInitializer(object):
 
 class ExtInstInitializer(object):
     """Instances holds a SPIR-V extended instruction suitable for printing as
-    the initializer for spv_ext_inst_desc_t."""
+    the initializer for spv_ext_inst_desc_t.
+
+
+    """
 
     def __init__(self, opname, opcode, caps, operands):
         """Initialization.
@@ -345,14 +358,12 @@ class ExtInstInitializer(object):
 def generate_instruction(inst, is_ext_inst):
     """Returns the C initializer for the given SPIR-V instruction.
 
-    Arguments:
-      - inst: a dict containing information about a SPIR-V instruction
-      - is_ext_inst: a bool indicating whether |inst| is an extended
-                     instruction.
-
-    Returns:
-      a string containing the C initializer for spv_opcode_desc_t or
+    :param inst: a dict containing information about a SPIR
+    :param is_ext_inst: a bool indicating whether
+    :param instruction: 
+    :returns: a string containing the C initializer for spv_opcode_desc_t or
       spv_ext_inst_desc_t
+
     """
     opname = inst.get("opname")
     opcode = inst.get("opcode")
@@ -374,15 +385,15 @@ def generate_instruction(inst, is_ext_inst):
 
 
 def generate_instruction_table(inst_table):
-    """Returns the info table containing all SPIR-V instructions, sorted by
-    opcode, and prefixed by capability arrays.
+    """
 
+    :param inst_table: a list containing all SPIR
+    :returns: opcode, and prefixed by capability arrays.
+    
     Note:
       - the built-in sorted() function is guaranteed to be stable.
         https://docs.python.org/3/library/functions.html#sorted
 
-    Arguments:
-      - inst_table: a list containing all SPIR-V instructions.
     """
     inst_table = sorted(inst_table, key=lambda k: (k["opcode"], k["opname"]))
 
@@ -403,14 +414,15 @@ def generate_instruction_table(inst_table):
 
 
 def generate_extended_instruction_table(json_grammar, set_name, operand_kind_prefix=""):
-    """Returns the info table containing all SPIR-V extended instructions,
-    sorted by opcode, and prefixed by capability arrays.
+    """
 
-    Arguments:
-      - inst_table: a list containing all SPIR-V instructions.
-      - set_name: the name of the extended instruction set.
-      - operand_kind_prefix: the prefix, if any, to add to the front
-        of operand kind names.
+    :param inst_table: a list containing all SPIR
+    :param set_name: the name of the extended instruction set
+    :param operand_kind_prefix: the prefix (Default value = "")
+    :param of: operand kind names
+    :param json_grammar: 
+    :returns: sorted by opcode, and prefixed by capability arrays.
+
     """
     if operand_kind_prefix:
         prefix_operand_kind_names(operand_kind_prefix, json_grammar)
@@ -483,12 +495,10 @@ class EnumerantInitializer(object):
 def generate_enum_operand_kind_entry(entry, extension_map):
     """Returns the C initializer for the given operand enum entry.
 
-    Arguments:
-      - entry: a dict containing information about an enum entry
-      - extension_map: a dict mapping enum value to list of extensions
+    :param entry: a dict containing information about an enum entry
+    :param extension_map: a dict mapping enum value to list of extensions
+    :returns: a string containing the C initializer for spv_operand_desc_t
 
-    Returns:
-      a string containing the C initializer for spv_operand_desc_t
     """
     enumerant = entry.get("enumerant")
     value = entry.get("value")
@@ -514,9 +524,13 @@ def generate_enum_operand_kind_entry(entry, extension_map):
 def generate_enum_operand_kind(enum, synthetic_exts_list):
     """Returns the C definition for the given operand kind.
     It's a static const named array of spv_operand_desc_t.
-
+    
     Also appends to |synthetic_exts_list| a list of extension lists
     used.
+
+    :param enum: 
+    :param synthetic_exts_list: 
+
     """
     kind = enum.get("kind")
     assert kind is not None
@@ -527,11 +541,21 @@ def generate_enum_operand_kind(enum, synthetic_exts_list):
     if enum.get("category") == "ValueEnum":
 
         def functor(k):
+            """
+
+            :param k: 
+
+            """
             return k["value"]
 
     else:
 
         def functor(k):
+            """
+
+            :param k: 
+
+            """
             return int(k["value"], 16)
 
     entries = sorted(enum.get("enumerants", []), key=functor)
@@ -566,7 +590,11 @@ def generate_enum_operand_kind(enum, synthetic_exts_list):
 
 
 def generate_operand_kind_table(enums):
-    """Returns the info table containing all SPIR-V operand kinds."""
+    """Returns the info table containing all SPIR-V operand kinds.
+
+    :param enums: 
+
+    """
     # We only need to output info tables for those operand kinds that are enums.
     enums = [e for e in enums if e.get("category") in ["ValueEnum", "BitEnum"]]
 
@@ -622,7 +650,12 @@ def generate_operand_kind_table(enums):
 
 
 def get_extension_list(instructions, operand_kinds):
-    """Returns extensions as an alphabetically sorted list of strings."""
+    """Returns extensions as an alphabetically sorted list of strings.
+
+    :param instructions: 
+    :param operand_kinds: 
+
+    """
 
     things_with_an_extensions_field = [item for item in instructions]
 
@@ -659,7 +692,11 @@ def get_extension_list(instructions, operand_kinds):
 
 def get_capabilities(operand_kinds):
     """Returns capabilities as a list of JSON objects, in order of
-    appearance."""
+    appearance.
+
+    :param operand_kinds: 
+
+    """
     enumerants = sum(
         [
             item.get("enumerants", [])
@@ -672,12 +709,20 @@ def get_capabilities(operand_kinds):
 
 
 def generate_extension_enum(extensions):
-    """Returns enumeration containing extensions declared in the grammar."""
+    """Returns enumeration containing extensions declared in the grammar.
+
+    :param extensions: 
+
+    """
     return ",\n".join(["k" + extension for extension in extensions])
 
 
 def generate_extension_to_string_mapping(extensions):
-    """Returns mapping function from extensions to corresponding strings."""
+    """Returns mapping function from extensions to corresponding strings.
+
+    :param extensions: 
+
+    """
     function = "const char* ExtensionToString(Extension extension) {\n"
     function += "  switch (extension) {\n"
     template = "    case Extension::k{extension}:\n" '      return "{extension}";\n'
@@ -689,7 +734,11 @@ def generate_extension_to_string_mapping(extensions):
 
 
 def generate_string_to_extension_mapping(extensions):
-    """Returns mapping function from strings to corresponding extensions."""
+    """Returns mapping function from strings to corresponding extensions.
+
+    :param extensions: 
+
+    """
 
     function = """
     bool GetExtensionFromString(const char* str, Extension* extension) {{
@@ -716,8 +765,11 @@ def generate_string_to_extension_mapping(extensions):
 
 def generate_capability_to_string_mapping(operand_kinds):
     """Returns mapping function from capabilities to corresponding strings.
-
+    
     We take care to avoid emitting duplicate values.
+
+    :param operand_kinds: 
+
     """
     cap_str = "SpvCapability"
     cap_join = ""
@@ -751,7 +803,12 @@ def generate_capability_to_string_mapping(operand_kinds):
 
 
 def generate_all_string_enum_mappings(extensions, operand_kinds):
-    """Returns all string-to-enum / enum-to-string mapping tables."""
+    """Returns all string-to-enum / enum-to-string mapping tables.
+
+    :param extensions: 
+    :param operand_kinds: 
+
+    """
     tables = []
     tables.append(generate_extension_to_string_mapping(extensions))
     tables.append(generate_string_to_extension_mapping(extensions))
@@ -761,7 +818,11 @@ def generate_all_string_enum_mappings(extensions, operand_kinds):
 
 def precondition_operand_kinds(operand_kinds):
     """For operand kinds that have the same number, make sure they all have the
-    same extension list."""
+    same extension list.
+
+    :param operand_kinds: 
+
+    """
 
     # Map operand kind and value to list of the union of extensions
     # for same-valued enumerants.
@@ -793,6 +854,10 @@ def prefix_operand_kind_names(prefix, json_dict):
     """Modifies json_dict, by prefixing all the operand kind names
     with the given prefix.  Also modifies their uses in the instructions
     to match.
+
+    :param prefix: 
+    :param json_dict: 
+
     """
 
     old_to_new = {}
@@ -810,6 +875,7 @@ def prefix_operand_kind_names(prefix, json_dict):
 
 
 def main():
+    """ """
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate SPIR-V info tables")
