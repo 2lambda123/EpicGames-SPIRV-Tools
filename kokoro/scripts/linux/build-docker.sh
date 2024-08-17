@@ -23,17 +23,17 @@ set -x
 # This is required to run any git command in the docker since owner will
 # have changed between the clone environment, and the docker container.
 # Marking the root of the repo as safe for ownership changes.
-git config --global --add safe.directory $ROOT_DIR
+git config --global --add safe.directory "$ROOT_DIR"
 
 . /bin/using.sh # Declare the bash `using` function for configuring toolchains.
 
-if [ $COMPILER = "clang" ]; then
+if [ "$COMPILER" = "clang" ]; then
   using clang-10.0.0
-elif [ $COMPILER = "gcc" ]; then
+elif [ "$COMPILER" = "gcc" ]; then
   using gcc-9
 fi
 
-cd $ROOT_DIR
+cd "$ROOT_DIR"
 
 function clean_dir() {
   dir=$1
@@ -43,45 +43,45 @@ function clean_dir() {
   mkdir "$dir"
 }
 
-if [ $TOOL != "cmake-smoketest" ]; then
+if [ "$TOOL" != "cmake-smoketest" ]; then
   # Get source for dependencies, as specified in the DEPS file
   /usr/bin/python3 utils/git-sync-deps --treeless
 fi
 
-if [ $TOOL = "cmake" ]; then
+if [ "$TOOL" = "cmake" ]; then
   using cmake-3.17.2
   using ninja-1.10.0
 
   # Possible configurations are:
   # ASAN, UBSAN, COVERAGE, RELEASE, DEBUG, DEBUG_EXCEPTION, RELEASE_MINGW
   BUILD_TYPE="Debug"
-  if [ $CONFIG = "RELEASE" ] || [ $CONFIG = "RELEASE_MINGW" ]; then
+  if [ "$CONFIG" = "RELEASE" ] || [ "$CONFIG" = "RELEASE_MINGW" ]; then
     BUILD_TYPE="RelWithDebInfo"
   fi
 
   SKIP_TESTS="False"
   ADDITIONAL_CMAKE_FLAGS=""
-  if [ $CONFIG = "ASAN" ]; then
+  if [ "$CONFIG" = "ASAN" ]; then
     ADDITIONAL_CMAKE_FLAGS="-DSPIRV_USE_SANITIZER=address,bounds,null"
-    [ $COMPILER = "clang" ] || { echo "$CONFIG requires clang"; exit 1; }
-  elif [ $CONFIG = "UBSAN" ]; then
+    [ "$COMPILER" = "clang" ] || { echo "$CONFIG requires clang"; exit 1; }
+  elif [ "$CONFIG" = "UBSAN" ]; then
     # UBSan requires RTTI, and by default UBSan does not exit when errors are
     # encountered - additional compiler options are required to force this.
     # The -DSPIRV_USE_SANITIZER=undefined option instructs SPIR-V Tools to be
     # built with UBSan enabled.
     ADDITIONAL_CMAKE_FLAGS="-DSPIRV_USE_SANITIZER=undefined -DENABLE_RTTI=ON -DCMAKE_C_FLAGS=-fno-sanitize-recover=all -DCMAKE_CXX_FLAGS=-fno-sanitize-recover=all"
-    [ $COMPILER = "clang" ] || { echo "$CONFIG requires clang"; exit 1; }
-  elif [ $CONFIG = "COVERAGE" ]; then
+    [ "$COMPILER" = "clang" ] || { echo "$CONFIG requires clang"; exit 1; }
+  elif [ "$CONFIG" = "COVERAGE" ]; then
     ADDITIONAL_CMAKE_FLAGS="-DENABLE_CODE_COVERAGE=ON"
     SKIP_TESTS="True"
-  elif [ $CONFIG = "DEBUG_EXCEPTION" ]; then
+  elif [ "$CONFIG" = "DEBUG_EXCEPTION" ]; then
     ADDITIONAL_CMAKE_FLAGS="-DDISABLE_EXCEPTIONS=ON -DDISABLE_RTTI=ON"
-  elif [ $CONFIG = "RELEASE_MINGW" ]; then
+  elif [ "$CONFIG" = "RELEASE_MINGW" ]; then
     ADDITIONAL_CMAKE_FLAGS="-Dgtest_disable_pthreads=ON -DCMAKE_TOOLCHAIN_FILE=$SRC/cmake/linux-mingw-toolchain.cmake"
     SKIP_TESTS="True"
   fi
 
-  if [ $COMPILER = "clang" ]; then
+  if [ "$COMPILER" = "clang" ]; then
     ADDITIONAL_CMAKE_FLAGS="$ADDITIONAL_CMAKE_FLAGS -DSPIRV_BUILD_LIBFUZZER_TARGETS=ON"
   fi
 
@@ -91,13 +91,13 @@ if [ $TOOL = "cmake" ]; then
   # Invoke the build.
   BUILD_SHA=${KOKORO_GITHUB_COMMIT:-$KOKORO_GITHUB_PULL_REQUEST_COMMIT}
   echo $(date): Starting build...
-  cmake -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3 -GNinja -DCMAKE_INSTALL_PREFIX=$KOKORO_ARTIFACTS_DIR/install -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DRE2_BUILD_TESTING=OFF -DSPIRV_BUILD_FUZZER=ON $ADDITIONAL_CMAKE_FLAGS ..
+  cmake -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3 -GNinja -DCMAKE_INSTALL_PREFIX="$KOKORO_ARTIFACTS_DIR"/install -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DRE2_BUILD_TESTING=OFF -DSPIRV_BUILD_FUZZER=ON "$ADDITIONAL_CMAKE_FLAGS" ..
 
   echo $(date): Build everything...
   ninja
   echo $(date): Build completed.
 
-  if [ $CONFIG = "COVERAGE" ]; then
+  if [ "$CONFIG" = "COVERAGE" ]; then
     echo $(date): Check coverage...
     ninja report-coverage
     echo $(date): Check coverage completed.
@@ -111,9 +111,9 @@ if [ $TOOL = "cmake" ]; then
 
   # Package the build.
   ninja install
-  cd $KOKORO_ARTIFACTS_DIR
+  cd "$KOKORO_ARTIFACTS_DIR"
   tar czf install.tgz install
-elif [ $TOOL = "cmake-smoketest" ]; then
+elif [ "$TOOL" = "cmake-smoketest" ]; then
   using cmake-3.17.2
   using ninja-1.10.0
 
@@ -127,7 +127,7 @@ elif [ $TOOL = "cmake-smoketest" ]; then
   # Get shaderc dependencies. Link the appropriate SPIRV-Tools.
   git clone https://github.com/google/googletest.git
   git clone https://github.com/KhronosGroup/glslang.git
-  ln -s $ROOT_DIR spirv-tools
+  ln -s "$ROOT_DIR" spirv-tools
   git clone https://github.com/KhronosGroup/SPIRV-Headers.git spirv-headers
   git clone https://github.com/google/re2
   git clone https://github.com/google/effcee
@@ -154,7 +154,7 @@ elif [ $TOOL = "cmake-smoketest" ]; then
   echo $(date): Starting ctest...
   ctest --output-on-failure -j4
   echo $(date): ctest completed.
-elif [ $TOOL = "cmake-android-ndk" ]; then
+elif [ "$TOOL" = "cmake-android-ndk" ]; then
   using cmake-3.17.2
   using ndk-r25c
   using ninja-1.10.0
@@ -169,28 +169,28 @@ elif [ $TOOL = "cmake-android-ndk" ]; then
         -DSPIRV_SKIP_TESTS=ON \
         -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
         -GNinja \
-        -DANDROID_NDK=$ANDROID_NDK \
+        -DANDROID_NDK="$ANDROID_NDK" \
         ..
 
   echo $(date): Build everything...
   ninja
   echo $(date): Build completed.
-elif [ $TOOL = "android-ndk-build" ]; then
+elif [ "$TOOL" = "android-ndk-build" ]; then
   using ndk-r25c
 
   clean_dir "$ROOT_DIR/build"
   cd "$ROOT_DIR/build"
 
   echo $(date): Starting ndk-build ...
-  $ANDROID_NDK_HOME/ndk-build \
-    -C $ROOT_DIR/android_test \
+  "$ANDROID_NDK_HOME"/ndk-build \
+    -C "$ROOT_DIR"/android_test \
     NDK_PROJECT_PATH=. \
     NDK_LIBS_OUT=./libs \
     NDK_APP_OUT=./app \
     -j4
 
   echo $(date): ndk-build completed.
-elif [ $TOOL = "bazel" ]; then
+elif [ "$TOOL" = "bazel" ]; then
   using bazel-7.0.2
 
   echo $(date): Build everything...
