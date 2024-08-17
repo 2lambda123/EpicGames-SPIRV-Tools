@@ -35,6 +35,7 @@ SPV_KHR_non_semantic_info
 
 OUTPUT_LANGUAGE = 'c'
 
+
 def make_path_to_file(f):
     """Makes all ancestor directories to the given file, if they don't yet
     exist.
@@ -540,13 +541,15 @@ def generate_operand_kind_table(enums):
 
     # We have a few operand kinds that require their optional counterpart to
     # exist in the operand info table.
-    optional_enums = ['ImageOperands', 'AccessQualifier', 'MemoryAccess', 'PackedVectorFormat', 'CooperativeMatrixOperands', 'RawAccessChainOperands']
+    optional_enums = ['ImageOperands', 'AccessQualifier', 'MemoryAccess',
+                      'PackedVectorFormat', 'CooperativeMatrixOperands', 'RawAccessChainOperands']
     optional_enums = [e for e in enums if e[0] in optional_enums]
     enums.extend(optional_enums)
 
     enum_kinds, enum_names, enum_entries = zip(*enums)
     # Mark the last few as optional ones.
-    enum_quantifiers = [''] * (len(enums) - len(optional_enums)) + ['?'] * len(optional_enums)
+    enum_quantifiers = [
+        ''] * (len(enums) - len(optional_enums)) + ['?'] * len(optional_enums)
     # And we don't want redefinition of them.
     enum_entries = enum_entries[:-len(optional_enums)]
     enum_kinds = [convert_operand_kind(e)
@@ -579,8 +582,8 @@ def get_extension_list(instructions, operand_kinds):
                       if item.get('extensions')], [])
 
     for item in EXTENSIONS_FROM_SPIRV_REGISTRY_AND_NOT_FROM_GRAMMARS.split():
-            # If it's already listed in a grammar, then don't put it in the
-            # special exceptions list.
+        # If it's already listed in a grammar, then don't put it in the
+        # special exceptions list.
         assert item not in extensions, 'Extension %s is already in a grammar file' % item
 
     extensions.extend(
@@ -758,7 +761,7 @@ def main():
                         'instruction set')
     parser.add_argument('--output-language',
                         type=str, required=False, default='c',
-                        choices=['c','c++'],
+                        choices=['c', 'c++'],
                         help='specify output language type')
 
     parser.add_argument('--core-insts-output', metavar='<path>',
@@ -805,8 +808,8 @@ def main():
               'should be specified together.')
         exit(1)
     if args.operand_kinds_output and not (args.spirv_core_grammar and
-         args.extinst_debuginfo_grammar and
-         args.extinst_cldebuginfo100_grammar):
+                                          args.extinst_debuginfo_grammar and
+                                          args.extinst_cldebuginfo100_grammar):
         print('error: --operand-kinds-output requires --spirv-core-grammar '
               'and --extinst-debuginfo-grammar '
               'and --extinst-cldebuginfo100-grammar')
@@ -841,8 +844,10 @@ def main():
             with open(args.extinst_debuginfo_grammar) as debuginfo_json_file:
                 debuginfo_grammar = json.loads(debuginfo_json_file.read())
                 with open(args.extinst_cldebuginfo100_grammar) as cldebuginfo100_json_file:
-                    cldebuginfo100_grammar = json.loads(cldebuginfo100_json_file.read())
-                    prefix_operand_kind_names("CLDEBUG100_", cldebuginfo100_grammar)
+                    cldebuginfo100_grammar = json.loads(
+                        cldebuginfo100_json_file.read())
+                    prefix_operand_kind_names(
+                        "CLDEBUG100_", cldebuginfo100_grammar)
                     instructions = []
                     instructions.extend(core_grammar['instructions'])
                     instructions.extend(debuginfo_grammar['instructions'])
@@ -850,8 +855,10 @@ def main():
                     operand_kinds = []
                     operand_kinds.extend(core_grammar['operand_kinds'])
                     operand_kinds.extend(debuginfo_grammar['operand_kinds'])
-                    operand_kinds.extend(cldebuginfo100_grammar['operand_kinds'])
-                    extensions = get_extension_list(instructions, operand_kinds)
+                    operand_kinds.extend(
+                        cldebuginfo100_grammar['operand_kinds'])
+                    extensions = get_extension_list(
+                        instructions, operand_kinds)
                     operand_kinds = precondition_operand_kinds(operand_kinds)
         if args.core_insts_output is not None:
             make_path_to_file(args.core_insts_output)
