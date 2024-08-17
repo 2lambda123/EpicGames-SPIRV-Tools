@@ -63,14 +63,20 @@ if [ "$TOOL" = "cmake" ]; then
   ADDITIONAL_CMAKE_FLAGS=""
   if [ "$CONFIG" = "ASAN" ]; then
     ADDITIONAL_CMAKE_FLAGS="-DSPIRV_USE_SANITIZER=address,bounds,null"
-    [ "$COMPILER" = "clang" ] || { echo "$CONFIG requires clang"; exit 1; }
+    [ "$COMPILER" = "clang" ] || {
+      echo "$CONFIG requires clang"
+      exit 1
+    }
   elif [ "$CONFIG" = "UBSAN" ]; then
     # UBSan requires RTTI, and by default UBSan does not exit when errors are
     # encountered - additional compiler options are required to force this.
     # The -DSPIRV_USE_SANITIZER=undefined option instructs SPIR-V Tools to be
     # built with UBSan enabled.
     ADDITIONAL_CMAKE_FLAGS="-DSPIRV_USE_SANITIZER=undefined -DENABLE_RTTI=ON -DCMAKE_C_FLAGS=-fno-sanitize-recover=all -DCMAKE_CXX_FLAGS=-fno-sanitize-recover=all"
-    [ "$COMPILER" = "clang" ] || { echo "$CONFIG requires clang"; exit 1; }
+    [ "$COMPILER" = "clang" ] || {
+      echo "$CONFIG requires clang"
+      exit 1
+    }
   elif [ "$CONFIG" = "COVERAGE" ]; then
     ADDITIONAL_CMAKE_FLAGS="-DENABLE_CODE_COVERAGE=ON"
     SKIP_TESTS="True"
@@ -164,13 +170,13 @@ elif [ "$TOOL" = "cmake-android-ndk" ]; then
 
   echo "$(date)": Starting build...
   cmake -DCMAKE_BUILD_TYPE=Release \
-        -DANDROID_NATIVE_API_LEVEL=android-24 \
-        -DANDROID_ABI="armeabi-v7a with NEON" \
-        -DSPIRV_SKIP_TESTS=ON \
-        -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
-        -GNinja \
-        -DANDROID_NDK="$ANDROID_NDK" \
-        ..
+    -DANDROID_NATIVE_API_LEVEL=android-24 \
+    -DANDROID_ABI="armeabi-v7a with NEON" \
+    -DSPIRV_SKIP_TESTS=ON \
+    -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+    -GNinja \
+    -DANDROID_NDK="$ANDROID_NDK" \
+    ..
 
   echo "$(date)": Build everything...
   ninja
