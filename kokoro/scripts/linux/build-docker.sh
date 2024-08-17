@@ -90,24 +90,24 @@ if [ "$TOOL" = "cmake" ]; then
 
   # Invoke the build.
   BUILD_SHA=${KOKORO_GITHUB_COMMIT:-$KOKORO_GITHUB_PULL_REQUEST_COMMIT}
-  echo $(date): Starting build...
-  cmake -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3 -GNinja -DCMAKE_INSTALL_PREFIX="$KOKORO_ARTIFACTS_DIR"/install -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DRE2_BUILD_TESTING=OFF -DSPIRV_BUILD_FUZZER=ON "$ADDITIONAL_CMAKE_FLAGS" ..
+  echo "$(date)": Starting build...
+  cmake -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3 -GNinja -DCMAKE_INSTALL_PREFIX="$KOKORO_ARTIFACTS_DIR"/install -DCMAKE_BUILD_TYPE="$BUILD_TYPE" -DRE2_BUILD_TESTING=OFF -DSPIRV_BUILD_FUZZER=ON "$ADDITIONAL_CMAKE_FLAGS" ..
 
-  echo $(date): Build everything...
+  echo "$(date)": Build everything...
   ninja
-  echo $(date): Build completed.
+  echo "$(date)": Build completed.
 
   if [ "$CONFIG" = "COVERAGE" ]; then
-    echo $(date): Check coverage...
+    echo "$(date)": Check coverage...
     ninja report-coverage
-    echo $(date): Check coverage completed.
+    echo "$(date)": Check coverage completed.
   fi
 
-  echo $(date): Starting ctest...
-  if [ $SKIP_TESTS = "False" ]; then
+  echo "$(date)": Starting ctest...
+  if [ "$SKIP_TESTS" = "False" ]; then
     ctest -j4 --output-on-failure --timeout 300
   fi
-  echo $(date): ctest completed.
+  echo "$(date)": ctest completed.
 
   # Package the build.
   ninja install
@@ -120,9 +120,9 @@ elif [ "$TOOL" = "cmake-smoketest" ]; then
   # Get shaderc.
   SHADERC_DIR=/tmp/shaderc
   clean_dir "$SHADERC_DIR"
-  cd $SHADERC_DIR
+  cd "$SHADERC_DIR"
   git clone https://github.com/google/shaderc.git .
-  cd $SHADERC_DIR/third_party
+  cd "$SHADERC_DIR"/third_party
 
   # Get shaderc dependencies. Link the appropriate SPIRV-Tools.
   git clone https://github.com/google/googletest.git
@@ -133,27 +133,27 @@ elif [ "$TOOL" = "cmake-smoketest" ]; then
   git clone https://github.com/google/effcee
   git clone https://github.com/abseil/abseil-cpp abseil_cpp
 
-  cd $SHADERC_DIR
+  cd "$SHADERC_DIR"
   mkdir build
-  cd $SHADERC_DIR/build
+  cd "$SHADERC_DIR"/build
 
   # Invoke the build.
-  echo $(date): Starting build...
+  echo "$(date)": Starting build...
   cmake -GNinja -DRE2_BUILD_TESTING=OFF -DCMAKE_BUILD_TYPE="Release" ..
 
-  echo $(date): Build glslang...
+  echo "$(date)": Build glslang...
   ninja glslang-standalone
 
-  echo $(date): Build everything...
+  echo "$(date)": Build everything...
   ninja
-  echo $(date): Build completed.
+  echo "$(date)": Build completed.
 
-  echo $(date): Check Shaderc for copyright notices...
+  echo "$(date)": Check Shaderc for copyright notices...
   ninja check-copyright
 
-  echo $(date): Starting ctest...
+  echo "$(date)": Starting ctest...
   ctest --output-on-failure -j4
-  echo $(date): ctest completed.
+  echo "$(date)": ctest completed.
 elif [ "$TOOL" = "cmake-android-ndk" ]; then
   using cmake-3.17.2
   using ndk-r25c
@@ -162,7 +162,7 @@ elif [ "$TOOL" = "cmake-android-ndk" ]; then
   clean_dir "$ROOT_DIR/build"
   cd "$ROOT_DIR/build"
 
-  echo $(date): Starting build...
+  echo "$(date)": Starting build...
   cmake -DCMAKE_BUILD_TYPE=Release \
         -DANDROID_NATIVE_API_LEVEL=android-24 \
         -DANDROID_ABI="armeabi-v7a with NEON" \
@@ -172,16 +172,16 @@ elif [ "$TOOL" = "cmake-android-ndk" ]; then
         -DANDROID_NDK="$ANDROID_NDK" \
         ..
 
-  echo $(date): Build everything...
+  echo "$(date)": Build everything...
   ninja
-  echo $(date): Build completed.
+  echo "$(date)": Build completed.
 elif [ "$TOOL" = "android-ndk-build" ]; then
   using ndk-r25c
 
   clean_dir "$ROOT_DIR/build"
   cd "$ROOT_DIR/build"
 
-  echo $(date): Starting ndk-build ...
+  echo "$(date)": Starting ndk-build ...
   "$ANDROID_NDK_HOME"/ndk-build \
     -C "$ROOT_DIR"/android_test \
     NDK_PROJECT_PATH=. \
@@ -189,15 +189,15 @@ elif [ "$TOOL" = "android-ndk-build" ]; then
     NDK_APP_OUT=./app \
     -j4
 
-  echo $(date): ndk-build completed.
+  echo "$(date)": ndk-build completed.
 elif [ "$TOOL" = "bazel" ]; then
   using bazel-7.0.2
 
-  echo $(date): Build everything...
+  echo "$(date)": Build everything...
   bazel build --cxxopt=-std=c++17 :all
-  echo $(date): Build completed.
+  echo "$(date)": Build completed.
 
-  echo $(date): Starting bazel test...
+  echo "$(date)": Starting bazel test...
   bazel test --cxxopt=-std=c++17 :all
-  echo $(date): Bazel test completed.
+  echo "$(date)": Bazel test completed.
 fi

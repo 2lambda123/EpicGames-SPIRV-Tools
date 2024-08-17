@@ -36,10 +36,10 @@ cd "$SRC"
 gsutil cp gs://bazel/7.0.2/release/bazel-7.0.2-darwin-x86_64 .
 chmod +x bazel-7.0.2-darwin-x86_64
 
-echo $(date): Build everything...
+echo "$(date)": Build everything...
 ./bazel-7.0.2-darwin-x86_64 build --cxxopt=-std=c++17 :all
-echo $(date): Build completed.
+echo "$(date)": Build completed.
 
-echo $(date): Starting bazel test...
+echo "$(date)": Starting bazel test...
 ./bazel-7.0.2-darwin-x86_64 test --cxxopt=-std=c++17 :all
-echo $(date): Bazel test completed.
+echo "$(date)": Bazel test completed.
