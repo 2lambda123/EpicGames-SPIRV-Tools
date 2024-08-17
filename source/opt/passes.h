@@ -17,9 +17,21 @@
 
 // A single header to include all passes.
 
+// UE Change Begin: Interface variable scalar replacement pass rewrite
+#include "source/opt/adv_interface_var_sroa.h"
+// UE Change End: Interface variable scalar replacement pass rewrite
 #include "source/opt/aggressive_dead_code_elim_pass.h"
 #include "source/opt/amd_ext_to_khr.h"
 #include "source/opt/analyze_live_input_pass.h"
+// UE Change Begin: Added support for Android driver patch pass to fix platform specific issues
+#include "source/opt/android_driver_patch_pass.h"
+// UE Change End: Added support for Android driver patch pass to fix platform specific issues
+// UE Change Begin: Added support for reducing const arrays to structs
+#include "source/opt/reduce_const_array_to_struct_pass.h"
+// UE Change End: Added support for reducing const arrays to structs
+// UE Change Begin: Convert-Composite-To-Op-Access-Chain-Pass
+#include "source/opt/convert_composite_to_op_access_chain.h"
+// UE Change End: Convert-Composite-To-Op-Access-Chain-Pass
 #include "source/opt/block_merge_pass.h"
 #include "source/opt/ccp_pass.h"
 #include "source/opt/cfg_cleanup_pass.h"
@@ -44,6 +56,11 @@
 #include "source/opt/flatten_decoration_pass.h"
 #include "source/opt/fold_spec_constant_op_and_composite_pass.h"
 #include "source/opt/freeze_spec_constant_value_pass.h"
+// UE Change Begin: Implement a fused-multiply-add pass to reduce the
+// possibility of re-association.
+#include "source/opt/fused_multiply_add_pass.h"
+// UE Change End: Implement a fused-multiply-add pass to reduce the possibility
+// of re-association.
 #include "source/opt/graphics_robust_access_pass.h"
 #include "source/opt/if_conversion.h"
 #include "source/opt/inline_exhaustive_pass.h"
@@ -53,6 +70,7 @@
 #include "source/opt/inst_debug_printf_pass.h"
 #include "source/opt/interface_var_sroa.h"
 #include "source/opt/interp_fixup_pass.h"
+#include "source/opt/invocation_interlock_placement_pass.h"
 #include "source/opt/licm_pass.h"
 #include "source/opt/local_access_chain_convert_pass.h"
 #include "source/opt/local_redundancy_elimination.h"
@@ -64,6 +82,7 @@
 #include "source/opt/loop_unroller.h"
 #include "source/opt/loop_unswitch_pass.h"
 #include "source/opt/merge_return_pass.h"
+#include "source/opt/modify_maximal_reconvergence.h"
 #include "source/opt/null_pass.h"
 #include "source/opt/private_to_local_pass.h"
 #include "source/opt/reduce_load_size.h"
@@ -82,6 +101,8 @@
 #include "source/opt/strength_reduction_pass.h"
 #include "source/opt/strip_debug_info_pass.h"
 #include "source/opt/strip_nonsemantic_info_pass.h"
+#include "source/opt/switch_descriptorset_pass.h"
+#include "source/opt/trim_capabilities_pass.h"
 #include "source/opt/unify_const_pass.h"
 #include "source/opt/upgrade_memory_model.h"
 #include "source/opt/vector_dce.h"
