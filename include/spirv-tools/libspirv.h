@@ -81,17 +81,17 @@ typedef enum spv_result_t {
 
 // Severity levels of messages communicated to the consumer.
 typedef enum spv_message_level_t {
-  SPV_MSG_FATAL,           // Unrecoverable error due to environment.
-                           // Will exit the program immediately. E.g.,
-                           // out of memory.
+  SPV_MSG_FATAL,  // Unrecoverable error due to environment.
+  // Will exit the program immediately. E.g.,
+  // out of memory.
   SPV_MSG_INTERNAL_ERROR,  // Unrecoverable error due to SPIRV-Tools
-                           // internals.
-                           // Will exit the program immediately. E.g.,
-                           // unimplemented feature.
-  SPV_MSG_ERROR,           // Normal error due to user input.
-  SPV_MSG_WARNING,         // Warning information.
-  SPV_MSG_INFO,            // General information.
-  SPV_MSG_DEBUG,           // Debug information.
+  // internals.
+  // Will exit the program immediately. E.g.,
+  // unimplemented feature.
+  SPV_MSG_ERROR,    // Normal error due to user input.
+  SPV_MSG_WARNING,  // Warning information.
+  SPV_MSG_INFO,     // General information.
+  SPV_MSG_DEBUG,    // Debug information.
 } spv_message_level_t;
 
 typedef enum spv_endianness_t {
@@ -276,9 +276,9 @@ typedef enum spv_operand_type_t {
   SPV_OPERAND_TYPE_RAY_FLAGS,               // SPIR-V Sec 3.RF
   SPV_OPERAND_TYPE_RAY_QUERY_INTERSECTION,  // SPIR-V Sec 3.RQIntersection
   SPV_OPERAND_TYPE_RAY_QUERY_COMMITTED_INTERSECTION_TYPE,  // SPIR-V Sec
-                                                           // 3.RQCommitted
+  // 3.RQCommitted
   SPV_OPERAND_TYPE_RAY_QUERY_CANDIDATE_INTERSECTION_TYPE,  // SPIR-V Sec
-                                                           // 3.RQCandidate
+  // 3.RQCandidate
 
   // Concrete operand types for integer dot product.
   // Packed vector format
@@ -537,13 +537,13 @@ typedef enum {
   SPV_ENV_OPENGL_4_5,     // OpenGL 4.5 plus GL_ARB_gl_spirv, latest revisions.
   SPV_ENV_UNIVERSAL_1_2,  // SPIR-V 1.2, latest revision, no other restrictions.
   SPV_ENV_OPENCL_1_2,     // OpenCL Full Profile 1.2 plus cl_khr_il_program,
-                          // latest revision.
+  // latest revision.
   SPV_ENV_OPENCL_EMBEDDED_1_2,  // OpenCL Embedded Profile 1.2 plus
-                                // cl_khr_il_program, latest revision.
+  // cl_khr_il_program, latest revision.
   SPV_ENV_OPENCL_2_0,  // OpenCL Full Profile 2.0 plus cl_khr_il_program,
-                       // latest revision.
+  // latest revision.
   SPV_ENV_OPENCL_EMBEDDED_2_0,  // OpenCL Embedded Profile 2.0 plus
-                                // cl_khr_il_program, latest revision.
+  // cl_khr_il_program, latest revision.
   SPV_ENV_OPENCL_EMBEDDED_2_1,  // OpenCL Embedded Profile 2.1 latest revision.
   SPV_ENV_OPENCL_EMBEDDED_2_2,  // OpenCL Embedded Profile 2.2 latest revision.
   SPV_ENV_UNIVERSAL_1_3,  // SPIR-V 1.3 latest revision, no other restrictions.
@@ -942,8 +942,8 @@ SPIRV_TOOLS_EXPORT spv_result_t spvBinaryParse(
 // The optimizer interface.
 
 // A pointer to a function that accepts a log message from an optimizer.
-typedef void (*spv_message_consumer)(
-    spv_message_level_t, const char*, const spv_position_t*, const char*);
+typedef void (*spv_message_consumer)(spv_message_level_t, const char*,
+                                     const spv_position_t*, const char*);
 
 // Creates and returns an optimizer object.  This object must be passed to
 // optimizer APIs below and is valid until passed to spvOptimizerDestroy.

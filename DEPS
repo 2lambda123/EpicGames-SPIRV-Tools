@@ -36,4 +36,3 @@ deps = {
       Var('github') +  '/KhronosGroup/SPIRV-Headers.git@' +
           Var('spirv_headers_revision'),
 }
-

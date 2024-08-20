@@ -20,12 +20,6 @@
 // See https://www.khronos.org/registry/spir-v/specs/1.0/DebugInfo.html
 // TODO(dneto): DebugInfo.h should probably move to SPIRV-Headers.
 #include "DebugInfo.h"
-
-#include "source/latest_version_glsl_std_450_header.h"
-#include "source/latest_version_opencl_std_header.h"
-#include "source/macro.h"
-#include "source/spirv_definition.h"
-
 #include "debuginfo.insts.inc"
 #include "glsl.std.450.insts.inc"
 #include "nonsemantic.clspvreflection.insts.inc"
@@ -33,7 +27,10 @@
 #include "nonsemantic.vkspreflection.insts.inc"
 #include "opencl.debuginfo.100.insts.inc"
 #include "opencl.std.insts.inc"
-
+#include "source/latest_version_glsl_std_450_header.h"
+#include "source/latest_version_opencl_std_header.h"
+#include "source/macro.h"
+#include "source/spirv_definition.h"
 #include "spirv-tools/libspirv.h"
 #include "spv-amd-gcn-shader.insts.inc"
 #include "spv-amd-shader-ballot.insts.inc"
